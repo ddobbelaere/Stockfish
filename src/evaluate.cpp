@@ -1034,7 +1034,7 @@ make_v:
     }
 
     // Evaluation grain
-    v = (v / 16) * 16;
+    v = static_cast<Value>((v + 7 + (v < 0)) & -16);
 
     // Side to move point of view
     v = (pos.side_to_move() == WHITE ? v : -v);
