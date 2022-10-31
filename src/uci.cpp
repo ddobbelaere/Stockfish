@@ -207,13 +207,13 @@ namespace {
      // The coefficients of a third-order polynomial fit is based on the fishtest data
      // for two parameters that need to transform eval to the argument of a logistic
      // function.
-     double as[] = { 0.50379905,  -4.12755858,  18.95487051, 152.00733652};
-     double bs[] = {-1.71790378,  10.71543602, -17.05515898,  41.15680404};
+     double as[] = {   1.04790516,   -8.58534089,   39.42615625,  316.17524816};
+     double bs[] = {  -3.57324784,   22.28816201,  -35.47480551,   85.60617701 };
      double a = (((as[0] * m + as[1]) * m + as[2]) * m) + as[3];
      double b = (((bs[0] * m + bs[1]) * m + bs[2]) * m) + bs[3];
 
      // Transform the eval to centipawns with limited range
-     double x = std::clamp(double(100 * v) / PawnValueEg, -2000.0, 2000.0);
+     double x = std::clamp(double(v), -4000.0, 4000.0);
 
      // Return the win rate in per mille units rounded to the nearest value
      return int(0.5 + 1000 / (1 + std::exp((a - x) / b)));
@@ -311,8 +311,14 @@ string UCI::value(Value v) {
 
   stringstream ss;
 
+  // Formerly PawnValueEg. This value currently results in 100cp having a 50% win rate.
+  // This is not too different from the historical value (113cp was 50% win rate in 2020)
+  // It can be obtained (and should be synced) with the win_rate_model, it is the value
+  // of the 'a' parameter at move 32 (which is the sum of the parameter array for a).
+  const int Internal2Pawn = 348;
+
   if (abs(v) < VALUE_MATE_IN_MAX_PLY)
-      ss << "cp " << v * 100 / PawnValueEg;
+      ss << "cp " << v * 100 / Internal2Pawn;
   else
       ss << "mate " << (v > 0 ? VALUE_MATE - v + 1 : -VALUE_MATE - v) / 2;
 
