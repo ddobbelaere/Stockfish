@@ -199,7 +199,7 @@ namespace {
 
   // The win rate model returns the probability of winning (in per mille units) given an
   // eval and a game ply. It fits the LTC fishtest statistics rather accurately.
-  int win_rate_model(Value v, int ply) {
+  constexpr int win_rate_model(Value v, int ply) {
 
      // The model only captures up to 240 plies, so limit the input and then rescale
      double m = std::min(240, ply) / 64.0;
@@ -312,10 +312,11 @@ string UCI::value(Value v) {
   stringstream ss;
 
   // Formerly PawnValueEg. This value currently results in 100cp having a 50% win rate.
-  // This is not too different from the historical value (113cp was 50% win rate in 2020)
-  // It can be obtained (and should be synced) with the win_rate_model, it is the value
-  // of the 'a' parameter at move 32 (which is the sum of the parameter array for a).
+  // This is not too different from the historical value (113cp was 50% win rate in 2020).
   const int Internal2Pawn = 348;
+
+  // Enforce that it corresponds to a 50% win rate at ply 64
+  static_assert(win_rate_model(Value{Internal2Pawn}, 64) == 500);
 
   if (abs(v) < VALUE_MATE_IN_MAX_PLY)
       ss << "cp " << v * 100 / Internal2Pawn;
